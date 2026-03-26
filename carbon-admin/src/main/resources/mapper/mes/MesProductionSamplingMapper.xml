@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesProductionSamplingMapper">
+    
+    <resultMap type="MesProductionSampling" id="MesProductionSamplingResult">
+        <result property="id"    column="id"    />
+        <result property="serialNumber"    column="serial_number"    />
+        <result property="planNumber"    column="plan_number"    />
+        <result property="jobId"    column="job_id"    />
+        <result property="jobName"    column="job_name"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_Name"    />
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"    />
+        <result property="materialUnit"    column="material_unit"    />
+        <result property="inspectionId"    column="inspection_id"    />
+        <result property="checkItem"    column="check_item"    />
+        <result property="upLimit"    column="up_limit"    />
+        <result property="lowerLimit"    column="lower_limit"    />
+        <result property="samplesNumber"    column="samples_number"    />
+        <result property="inspectionValue"    column="inspection_value"    />
+        <result property="inspectionResults"    column="inspection_results"    />
+        <result property="checkUserId"    column="check_user_id"    />
+        <result property="checkUserName"    column="check_user_name"    />
+        <result property="inspectorTime"    column="inspector_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectMesProductionSamplingVo">
+        select a.id, a.serial_number, d.plan_number, a.job_id, b.job_name, a.quantity, a.material_id,
+               e.material_Name, e.material_model, e.material_specifications, e.material_unit,
+               a.inspection_id, f.check_item, f.up_limit, f.lower_limit, a.samples_number, a.inspection_value,
+               a.inspection_results, a.check_user_id, g.user_name as check_user_name, a.inspector_time, a.remark from mes_production_sampling a
+    </sql>
+
+    <select id="selectMesProductionSamplingList" parameterType="MesProductionSampling" resultMap="MesProductionSamplingResult">
+        <include refid="selectMesProductionSamplingVo"/>
+        left join mes_job_assembly b on a.job_id = b.id
+        left join mes_planned_production c on b.planned_production_id = c.id
+        left join mes_production_plan d on c.production_plan_id = d.id
+        left join wms_material e on a.material_id = e.id
+        left join mes_inspection_standards f on a.inspection_id = f.id
+        left join sys_user g on a.check_user_id = g.user_id
+        <where>  
+            <if test="serialNumber != null  and serialNumber != ''"> and serial_number like concat('%', #{serialNumber}, '%')</if>
+            <if test="inspectionValue != null "> and inspection_value like concat('%', #{inspectionValue}, '%')</if>
+            <if test="inspectionResults != null "> and inspection_results like concat('%', #{inspectionResults}, '%')</if>
+            <if test="checkUserId != null "> and check_user_id like concat('%', #{checkUserId}, '%')</if>
+            <if test="inspectorTime != null "> and inspector_time like concat('%', #{inspectorTime}, '%')</if>
+            <if test="params.beginInspectorTime != null and params.beginInspectorTime != '' and params.endInspectorTime != null and params.endInspectorTime != ''"> and inspector_time between #{params.beginInspectorTime} and #{params.endInspectorTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMesProductionSamplingById" parameterType="Long" resultMap="MesProductionSamplingResult">
+        <include refid="selectMesProductionSamplingVo"/>
+        left join mes_job_assembly b on a.job_id = b.id
+        left join mes_planned_production c on b.planned_production_id = c.id
+        left join mes_production_plan d on c.production_plan_id = d.id
+        left join wms_material e on a.material_id = e.id
+        left join mes_inspection_standards f on a.inspection_id = f.id
+        left join sys_user g on a.check_user_id = g.user_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertMesProductionSampling" parameterType="MesProductionSampling" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_production_sampling
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number,</if>
+            <if test="jobId != null">job_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="inspectionId != null">inspection_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="samplesNumber != null">samples_number,</if>
+            <if test="inspectionValue != null">inspection_value,</if>
+            <if test="inspectionResults != null">inspection_results,</if>
+            <if test="checkUserId != null">check_user_id,</if>
+            <if test="inspectorTime != null">inspector_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">#{serialNumber},</if>
+            <if test="jobId != null">#{jobId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="inspectionId != null">#{inspectionId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="samplesNumber != null">#{samplesNumber},</if>
+            <if test="inspectionValue != null">#{inspectionValue},</if>
+            <if test="inspectionResults != null">#{inspectionResults},</if>
+            <if test="checkUserId != null">#{checkUserId},</if>
+            <if test="inspectorTime != null">#{inspectorTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesProductionSampling" parameterType="MesProductionSampling">
+        update mes_production_sampling
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number = #{serialNumber},</if>
+            <if test="jobId != null">job_id = #{jobId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="inspectionId != null">inspection_id = #{inspectionId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="samplesNumber != null">samples_number = #{samplesNumber},</if>
+            <if test="inspectionValue != null">inspection_value = #{inspectionValue},</if>
+            <if test="inspectionResults != null">inspection_results = #{inspectionResults},</if>
+            <if test="checkUserId != null">check_user_id = #{checkUserId},</if>
+            <if test="inspectorTime != null">inspector_time = #{inspectorTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesProductionSamplingById" parameterType="Long">
+        delete from mes_production_sampling where id = #{id}
+    </delete>
+
+    <delete id="deleteMesProductionSamplingByIds" parameterType="String">
+        delete from mes_production_sampling where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

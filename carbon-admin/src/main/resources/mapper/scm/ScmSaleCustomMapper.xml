@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.scm.mapper.ScmSaleCustomMapper">
+    
+    <resultMap type="ScmSaleCustom" id="ScmSaleCustomResult">
+        <result property="id"    column="id"    />
+        <result property="customName"    column="custom_name"    />
+        <result property="address"    column="address"    />
+        <result property="linkman"    column="linkman"    />
+        <result property="linkmanPhoneNumber"    column="linkman_phone_number"    />
+        <result property="customType"    column="custom_type"    />
+        <result property="creditLevel"    column="credit_level"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="abbreviation"    column="abbreviation"    />
+        <result property="zipCode"    column="zip_code"    />
+        <result property="phoneNumber"    column="phone_number"    />
+        <result property="accountsBank"    column="accounts_bank"    />
+        <result property="bankAccount"    column="bank_account"    />
+        <result property="taxId"    column="tax_id"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectScmSaleCustomVo">
+        select id, custom_name, address, linkman, linkman_phone_number, custom_type, credit_level, status, create_time, abbreviation, zip_code, phone_number, accounts_bank, bank_account, tax_id, remark from scm_sale_custom
+    </sql>
+
+    <select id="selectScmSaleCustomList" parameterType="ScmSaleCustom" resultMap="ScmSaleCustomResult">
+        <include refid="selectScmSaleCustomVo"/>
+        <where>  
+            <if test="customName != null  and customName != ''"> and custom_name like concat('%', #{customName}, '%')</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="linkman != null  and linkman != ''"> and linkman = #{linkman}</if>
+            <if test="linkmanPhoneNumber != null  and linkmanPhoneNumber != ''"> and linkman_phone_number = #{linkmanPhoneNumber}</if>
+            <if test="customType != null "> and custom_type = #{customType}</if>
+            <if test="creditLevel != null "> and credit_level = #{creditLevel}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="abbreviation != null  and abbreviation != ''"> and abbreviation = #{abbreviation}</if>
+            <if test="zipCode != null  and zipCode != ''"> and zip_code = #{zipCode}</if>
+            <if test="phoneNumber != null  and phoneNumber != ''"> and phone_number = #{phoneNumber}</if>
+            <if test="accountsBank != null  and accountsBank != ''"> and accounts_bank = #{accountsBank}</if>
+            <if test="bankAccount != null  and bankAccount != ''"> and bank_account = #{bankAccount}</if>
+            <if test="taxId != null  and taxId != ''"> and tax_id = #{taxId}</if>
+        </where>
+    </select>
+    
+    <select id="selectScmSaleCustomById" parameterType="Long" resultMap="ScmSaleCustomResult">
+        <include refid="selectScmSaleCustomVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertScmSaleCustom" parameterType="ScmSaleCustom" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_sale_custom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customName != null">custom_name,</if>
+            <if test="address != null">address,</if>
+            <if test="linkman != null">linkman,</if>
+            <if test="linkmanPhoneNumber != null">linkman_phone_number,</if>
+            <if test="customType != null">custom_type,</if>
+            <if test="creditLevel != null">credit_level,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="abbreviation != null">abbreviation,</if>
+            <if test="zipCode != null">zip_code,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="accountsBank != null">accounts_bank,</if>
+            <if test="bankAccount != null">bank_account,</if>
+            <if test="taxId != null">tax_id,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customName != null">#{customName},</if>
+            <if test="address != null">#{address},</if>
+            <if test="linkman != null">#{linkman},</if>
+            <if test="linkmanPhoneNumber != null">#{linkmanPhoneNumber},</if>
+            <if test="customType != null">#{customType},</if>
+            <if test="creditLevel != null">#{creditLevel},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="abbreviation != null">#{abbreviation},</if>
+            <if test="zipCode != null">#{zipCode},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="accountsBank != null">#{accountsBank},</if>
+            <if test="bankAccount != null">#{bankAccount},</if>
+            <if test="taxId != null">#{taxId},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScmSaleCustom" parameterType="ScmSaleCustom">
+        update scm_sale_custom
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customName != null">custom_name = #{customName},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="linkman != null">linkman = #{linkman},</if>
+            <if test="linkmanPhoneNumber != null">linkman_phone_number = #{linkmanPhoneNumber},</if>
+            <if test="customType != null">custom_type = #{customType},</if>
+            <if test="creditLevel != null">credit_level = #{creditLevel},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="abbreviation != null">abbreviation = #{abbreviation},</if>
+            <if test="zipCode != null">zip_code = #{zipCode},</if>
+            <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
+            <if test="accountsBank != null">accounts_bank = #{accountsBank},</if>
+            <if test="bankAccount != null">bank_account = #{bankAccount},</if>
+            <if test="taxId != null">tax_id = #{taxId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScmSaleCustomById" parameterType="Long">
+        delete from scm_sale_custom where id = #{id}
+    </delete>
+
+    <delete id="deleteScmSaleCustomByIds" parameterType="String">
+        delete from scm_sale_custom where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.scm.mapper.ScmPurchasingSupplierMapper">
+    
+    <resultMap type="ScmPurchasingSupplier" id="ScmPurchasingSupplierResult">
+        <result property="id"    column="id"    />
+        <result property="supplierName"    column="supplier_name"    />
+        <result property="abbreviation"    column="abbreviation"    />
+        <result property="companyAddress"    column="company_address"    />
+        <result property="companyPhone"    column="company_phone"    />
+        <result property="contacts"    column="contacts"    />
+        <result property="contactNumber"    column="contact_number"    />
+        <result property="depositBank"    column="deposit_bank"    />
+        <result property="bankAccount"    column="bank_account"    />
+        <result property="dutyParagraph"    column="duty_paragraph"    />
+        <result property="supplierClassification"    column="supplier_classification"    />
+        <result property="supplierLevel"    column="supplier_level"    />
+        <result property="status"    column="status"    />
+        <result property="applicantId"    column="applicant_id"    />
+        <result property="applicantDate"    column="applicant_date"    />
+        <result property="applicantStatus"    column="applicant_status"    />
+        <result property="approvedId"    column="approved_id"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="approvedStatus"    column="approved_status"    />
+        <result property="approvedComments"    column="approved_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="approvedName"    column="approved_name"    />
+    </resultMap>
+
+    <sql id="selectScmPurchasingSupplierVo">
+        select a.*,
+				b.user_name as applicant_name,
+				c.user_name as approved_name
+				from scm_purchasing_supplier a
+	</sql>
+
+    <select id="selectScmPurchasingSupplierList" parameterType="ScmPurchasingSupplier" resultMap="ScmPurchasingSupplierResult">
+        <include refid="selectScmPurchasingSupplierVo"/>
+        LEFT JOIN sys_user b on a.applicant_id = b.user_id
+        LEFT JOIN sys_user c ON a.approved_id = c.user_id
+        <where>  
+            <if test="supplierName != null  and supplierName != ''"> and supplier_name like concat('%', #{supplierName}, '%')</if>
+            <if test="abbreviation != null  and abbreviation != ''"> and abbreviation = #{abbreviation}</if>
+            <if test="companyAddress != null  and companyAddress != ''"> and company_address = #{companyAddress}</if>
+            <if test="companyPhone != null  and companyPhone != ''"> and company_phone = #{companyPhone}</if>
+            <if test="contacts != null  and contacts != ''"> and contacts = #{contacts}</if>
+            <if test="contactNumber != null  and contactNumber != ''"> and contact_number = #{contactNumber}</if>
+            <if test="depositBank != null  and depositBank != ''"> and deposit_bank = #{depositBank}</if>
+            <if test="bankAccount != null  and bankAccount != ''"> and bank_account = #{bankAccount}</if>
+            <if test="dutyParagraph != null  and dutyParagraph != ''"> and duty_paragraph = #{dutyParagraph}</if>
+            <if test="supplierClassification != null "> and supplier_classification = #{supplierClassification}</if>
+            <if test="supplierLevel != null "> and supplier_level = #{supplierLevel}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="applicantId != null "> and applicant_id = #{applicantId}</if>
+            <if test="applicantDate != null "> and applicant_date = #{applicantDate}</if>
+            <if test="applicantStatus != null "> and applicant_status = #{applicantStatus}</if>
+            <if test="approvedId != null "> and approved_id = #{approvedId}</if>
+            <if test="approvedDate != null "> and approved_date = #{approvedDate}</if>
+            <if test="approvedStatus != null "> and approved_status = #{approvedStatus}</if>
+            <if test="approvedComments != null  and approvedComments != ''"> and approved_comments = #{approvedComments}</if>
+        </where>
+    </select>
+    
+    <select id="selectScmPurchasingSupplierById" parameterType="Long" resultMap="ScmPurchasingSupplierResult">
+        <include refid="selectScmPurchasingSupplierVo"/>
+        LEFT JOIN sys_user b on a.applicant_id = b.user_id
+        LEFT JOIN sys_user c ON a.approved_id = c.user_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertScmPurchasingSupplier" parameterType="ScmPurchasingSupplier" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_purchasing_supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierName != null">supplier_name,</if>
+            <if test="abbreviation != null">abbreviation,</if>
+            <if test="companyAddress != null">company_address,</if>
+            <if test="companyPhone != null">company_phone,</if>
+            <if test="contacts != null">contacts,</if>
+            <if test="contactNumber != null">contact_number,</if>
+            <if test="depositBank != null">deposit_bank,</if>
+            <if test="bankAccount != null">bank_account,</if>
+            <if test="dutyParagraph != null">duty_paragraph,</if>
+            <if test="supplierClassification != null">supplier_classification,</if>
+            <if test="supplierLevel != null">supplier_level,</if>
+            <if test="status != null">status,</if>
+            <if test="applicantId != null">applicant_id,</if>
+            <if test="applicantDate != null">applicant_date,</if>
+            <if test="applicantStatus != null">applicant_status,</if>
+            <if test="approvedId != null">approved_id,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="approvedStatus != null">approved_status,</if>
+            <if test="approvedComments != null">approved_comments,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierName != null">#{supplierName},</if>
+            <if test="abbreviation != null">#{abbreviation},</if>
+            <if test="companyAddress != null">#{companyAddress},</if>
+            <if test="companyPhone != null">#{companyPhone},</if>
+            <if test="contacts != null">#{contacts},</if>
+            <if test="contactNumber != null">#{contactNumber},</if>
+            <if test="depositBank != null">#{depositBank},</if>
+            <if test="bankAccount != null">#{bankAccount},</if>
+            <if test="dutyParagraph != null">#{dutyParagraph},</if>
+            <if test="supplierClassification != null">#{supplierClassification},</if>
+            <if test="supplierLevel != null">#{supplierLevel},</if>
+            <if test="status != null">#{status},</if>
+            <if test="applicantId != null">#{applicantId},</if>
+            <if test="applicantDate != null">#{applicantDate},</if>
+            <if test="applicantStatus != null">#{applicantStatus},</if>
+            <if test="approvedId != null">#{approvedId},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="approvedStatus != null">#{approvedStatus},</if>
+            <if test="approvedComments != null">#{approvedComments},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScmPurchasingSupplier" parameterType="ScmPurchasingSupplier">
+        update scm_purchasing_supplier
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="abbreviation != null">abbreviation = #{abbreviation},</if>
+            <if test="companyAddress != null">company_address = #{companyAddress},</if>
+            <if test="companyPhone != null">company_phone = #{companyPhone},</if>
+            <if test="contacts != null">contacts = #{contacts},</if>
+            <if test="contactNumber != null">contact_number = #{contactNumber},</if>
+            <if test="depositBank != null">deposit_bank = #{depositBank},</if>
+            <if test="bankAccount != null">bank_account = #{bankAccount},</if>
+            <if test="dutyParagraph != null">duty_paragraph = #{dutyParagraph},</if>
+            <if test="supplierClassification != null">supplier_classification = #{supplierClassification},</if>
+            <if test="supplierLevel != null">supplier_level = #{supplierLevel},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="applicantId != null">applicant_id = #{applicantId},</if>
+            <if test="applicantDate != null">applicant_date = #{applicantDate},</if>
+            <if test="applicantStatus != null">applicant_status = #{applicantStatus},</if>
+            <if test="approvedId != null">approved_id = #{approvedId},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="approvedStatus != null">approved_status = #{approvedStatus},</if>
+            <if test="approvedComments != null">approved_comments = #{approvedComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScmPurchasingSupplierById" parameterType="Long">
+        delete from scm_purchasing_supplier where id = #{id}
+    </delete>
+
+    <delete id="deleteScmPurchasingSupplierByIds" parameterType="String">
+        delete from scm_purchasing_supplier where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

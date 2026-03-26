@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.wms.mapper.WmsOutboundApplicationDetailsMapper">
+    
+    <resultMap type="WmsOutboundApplicationDetails" id="WmsOutboundApplicationDetailsResult">
+        <result property="id"    column="id"    />
+        <result property="outboundApplicationId"    column="outbound_application_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="warehouseId"    column="warehouse_id"    />
+        <result property="warehouseAreaId"    column="warehouse_area_id"    />
+        <result property="warehouseSeatId"    column="warehouse_seat_id"    />
+        <result property="outboundNumber"    column="outbound_number"    />
+        <result property="batchNumber"    column="batch_number"    />
+    </resultMap>
+
+    <sql id="selectWmsOutboundApplicationDetailsVo">
+        select id, outbound_application_id, material_id, warehouse_id, warehouse_area_id, warehouse_seat_id, outbound_number, batch_number from wms_outbound_application_details
+    </sql>
+
+    <select id="selectWmsOutboundApplicationDetailsList" parameterType="WmsOutboundApplicationDetails" resultMap="WmsOutboundApplicationDetailsResult">
+        <include refid="selectWmsOutboundApplicationDetailsVo"/>
+        <where>  
+            <if test="outboundApplicationId != null "> and outbound_application_id = #{outboundApplicationId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="warehouseId != null "> and warehouse_id = #{warehouseId}</if>
+            <if test="warehouseAreaId != null "> and warehouse_area_id = #{warehouseAreaId}</if>
+            <if test="warehouseSeatId != null "> and warehouse_seat_id = #{warehouseSeatId}</if>
+            <if test="outboundNumber != null "> and outbound_number = #{outboundNumber}</if>
+            <if test="batchNumber != null  and batchNumber != ''"> and batch_number = #{batchNumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectWmsOutboundApplicationDetailsById" parameterType="String" resultMap="WmsOutboundApplicationDetailsResult">
+        <include refid="selectWmsOutboundApplicationDetailsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWmsOutboundApplicationDetails" parameterType="WmsOutboundApplicationDetails" useGeneratedKeys="true" keyProperty="id">
+        insert into wms_outbound_application_details
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="outboundApplicationId != null">outbound_application_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="warehouseAreaId != null">warehouse_area_id,</if>
+            <if test="warehouseSeatId != null">warehouse_seat_id,</if>
+            <if test="outboundNumber != null">outbound_number,</if>
+            <if test="batchNumber != null">batch_number,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="outboundApplicationId != null">#{outboundApplicationId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="warehouseAreaId != null">#{warehouseAreaId},</if>
+            <if test="warehouseSeatId != null">#{warehouseSeatId},</if>
+            <if test="outboundNumber != null">#{outboundNumber},</if>
+            <if test="batchNumber != null">#{batchNumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWmsOutboundApplicationDetails" parameterType="WmsOutboundApplicationDetails">
+        update wms_outbound_application_details
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="outboundApplicationId != null">outbound_application_id = #{outboundApplicationId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="warehouseAreaId != null">warehouse_area_id = #{warehouseAreaId},</if>
+            <if test="warehouseSeatId != null">warehouse_seat_id = #{warehouseSeatId},</if>
+            <if test="outboundNumber != null">outbound_number = #{outboundNumber},</if>
+            <if test="batchNumber != null">batch_number = #{batchNumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWmsOutboundApplicationDetailsById" parameterType="String">
+        delete from wms_outbound_application_details where id = #{id}
+    </delete>
+
+    <delete id="deleteWmsOutboundApplicationDetailsByIds" parameterType="String">
+        delete from wms_outbound_application_details where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

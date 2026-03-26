@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.scm.mapper.ScmPurchasingApplictionMapper">
+    
+    <resultMap type="ScmPurchasingAppliction" id="ScmPurchasingApplictionResult">
+        <result property="id"    column="id"    />
+        <result property="applicationNo"    column="application_no"    />
+        <result property="applicationType"    column="application_type"    />
+        <result property="purchasingPlanId"    column="purchasing_plan_id"    />
+        <result property="replenishmentId"    column="replenishment_id"    />
+        <result property="applicantId"    column="applicant_id"    />
+        <result property="applicantDate"    column="applicant_date"    />
+        <result property="applicantStatus"    column="applicant_status"    />
+        <result property="approvedId"    column="approved_id"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="approvedStatus"    column="approved_status"    />
+        <result property="approvedComments"    column="approved_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="documentNumber"    column="document_number"    />
+        <result property="replenishmentNumber"    column="replenishment_number"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="approvedName"    column="approved_name"    />
+    </resultMap>
+
+    <resultMap id="ScmPurchasingApplictionScmPurchasingApplictionDetailResult" type="ScmPurchasingAppliction" extends="ScmPurchasingApplictionResult">
+        <collection property="scmPurchasingApplictionDetailList" notNullColumn="sub_id" javaType="java.util.List" resultMap="ScmPurchasingApplictionDetailResult" />
+    </resultMap>
+
+    <resultMap type="ScmPurchasingApplictionDetail" id="ScmPurchasingApplictionDetailResult">
+        <result property="id"    column="sub_id"    />
+        <result property="purchasingApplicationId"    column="sub_purchasing_application_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="purchaseQuantity"    column="sub_purchase_quantity"    />
+        <result property="demandedQuantity"    column="sub_demanded_quantity"    />
+        <result property="demandedDate"    column="sub_demanded_date"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"    />
+        <result property="materialUnit"    column="material_unit"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="approvedName"    column="approved_name"    />
+    </resultMap>
+
+    <sql id="selectScmPurchasingApplictionVo">
+        select a.id,
+				a.application_no,
+				a.application_type,
+				a.purchasing_plan_id,
+				a.replenishment_id,
+				a.applicant_id,
+				a.applicant_date,
+				a.applicant_status,
+				a.approved_id,
+				a.approved_date,
+				a.approved_status,
+				a.approved_comments,
+				a.remark,
+				c.document_number,
+				f.user_name applicant_name,
+                g.user_name approved_name,
+				d.document_number as replenishment_number
+				from scm_purchasing_appliction a
+    </sql>
+
+    <select id="selectScmPurchasingApplictionList" parameterType="ScmPurchasingAppliction" resultMap="ScmPurchasingApplictionResult">
+        <include refid="selectScmPurchasingApplictionVo"/>
+        LEFT JOIN  scm_purchasing_plan c on a.purchasing_plan_id = c.id
+        LEFT JOIN  wms_replenishment_application d on a.replenishment_id = d.id
+        left JOIN sys_user f ON a.applicant_id = f.user_id
+        left JOIN sys_user g ON a.approved_id = g.user_id
+        <where>  
+            <if test="applicationNo != null  and applicationNo != ''"> and a.application_no = #{applicationNo}</if>
+            <if test="applicationType != null "> and a.application_type = #{applicationType}</if>
+            <if test="applicantId != null "> and a.applicant_id = #{applicantId}</if>
+            <if test="params.beginApplicantDate != null and params.beginApplicantDate != '' and params.endApplicantDate != null and params.endApplicantDate != ''"> and a.applicant_date between #{params.beginApplicantDate} and #{params.endApplicantDate}</if>
+            <if test="applicantStatus != null "> and a.applicant_status = #{applicantStatus}</if>
+            <if test="approvedId != null "> and a.approved_id = #{approvedId}</if>
+            <if test="params.beginApprovedDate != null and params.beginApprovedDate != '' and params.endApprovedDate != null and params.endApprovedDate != ''"> and a.approved_date between #{params.beginApprovedDate} and #{params.endApprovedDate}</if>
+            <if test="approvedStatus != null "> and a.approved_status = #{approvedStatus}</if>
+            <if test="approvedComments != null  and approvedComments != ''"> and a.approved_comments = #{approvedComments}</if>
+            <if test="documentNumber != null  and documentNumber != ''"> and c.document_number like concat('%', #{documentNumber}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectScmPurchasingApplictionById" parameterType="Long" resultMap="ScmPurchasingApplictionScmPurchasingApplictionDetailResult">
+        select a.id, a.application_no, a.application_type, a.purchasing_plan_id, a.replenishment_id, a.applicant_id, a.applicant_date, a.applicant_status, a.approved_id, a.approved_date, a.approved_status, a.approved_comments, a.remark,
+ b.id as sub_id, b.purchasing_application_id as sub_purchasing_application_id,
+ b.material_id as sub_material_id, b.purchase_quantity as sub_purchase_quantity,
+ b.demanded_quantity as sub_demanded_quantity, b.demanded_date as sub_demanded_date, b.remark as sub_remark,
+ c.document_number,
+d.document_number as replenishment_number,
+f.user_name applicant_name,
+g.user_name approved_name,
+e.material_name,
+e.material_model,
+e.material_specifications,
+e.material_unit
+        from scm_purchasing_appliction a
+        left join scm_purchasing_appliction_detail b on b.purchasing_application_id = a.id
+        LEFT JOIN  scm_purchasing_plan c on a.purchasing_plan_id = c.id
+        LEFT JOIN  wms_replenishment_application d on a.replenishment_id = d.id
+        left join  wms_material e on b.material_id = e.id
+                left JOIN sys_user f ON a.applicant_id = f.user_id
+        left JOIN sys_user g ON a.approved_id = g.user_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertScmPurchasingAppliction" parameterType="ScmPurchasingAppliction" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_purchasing_appliction
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applicationNo != null">application_no,</if>
+            <if test="applicationType != null">application_type,</if>
+            <if test="purchasingPlanId != null">purchasing_plan_id,</if>
+            <if test="replenishmentId != null">replenishment_id,</if>
+            <if test="applicantId != null">applicant_id,</if>
+            <if test="applicantDate != null">applicant_date,</if>
+            <if test="applicantStatus != null">applicant_status,</if>
+            <if test="approvedId != null">approved_id,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="approvedStatus != null">approved_status,</if>
+            <if test="approvedComments != null">approved_comments,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applicationNo != null">#{applicationNo},</if>
+            <if test="applicationType != null">#{applicationType},</if>
+            <if test="purchasingPlanId != null">#{purchasingPlanId},</if>
+            <if test="replenishmentId != null">#{replenishmentId},</if>
+            <if test="applicantId != null">#{applicantId},</if>
+            <if test="applicantDate != null">#{applicantDate},</if>
+            <if test="applicantStatus != null">#{applicantStatus},</if>
+            <if test="approvedId != null">#{approvedId},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="approvedStatus != null">#{approvedStatus},</if>
+            <if test="approvedComments != null">#{approvedComments},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScmPurchasingAppliction" parameterType="ScmPurchasingAppliction">
+        update scm_purchasing_appliction
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applicationNo != null">application_no = #{applicationNo},</if>
+            <if test="applicationType != null">application_type = #{applicationType},</if>
+            <if test="purchasingPlanId != null">purchasing_plan_id = #{purchasingPlanId},</if>
+            <if test="replenishmentId != null">replenishment_id = #{replenishmentId},</if>
+            <if test="applicantId != null">applicant_id = #{applicantId},</if>
+            <if test="applicantDate != null">applicant_date = #{applicantDate},</if>
+            <if test="applicantStatus != null">applicant_status = #{applicantStatus},</if>
+            <if test="approvedId != null">approved_id = #{approvedId},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="approvedStatus != null">approved_status = #{approvedStatus},</if>
+            <if test="approvedComments != null">approved_comments = #{approvedComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScmPurchasingApplictionById" parameterType="Long">
+        delete from scm_purchasing_appliction where id = #{id}
+    </delete>
+
+    <delete id="deleteScmPurchasingApplictionByIds" parameterType="String">
+        delete from scm_purchasing_appliction where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteScmPurchasingApplictionDetailByPurchasingApplicationIds" parameterType="String">
+        delete from scm_purchasing_appliction_detail where purchasing_application_id in 
+        <foreach item="purchasingApplicationId" collection="array" open="(" separator="," close=")">
+            #{purchasingApplicationId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteScmPurchasingApplictionDetailByPurchasingApplicationId" parameterType="Long">
+        delete from scm_purchasing_appliction_detail where purchasing_application_id = #{purchasingApplicationId}
+    </delete>
+
+    <insert id="batchScmPurchasingApplictionDetail">
+        insert into scm_purchasing_appliction_detail( id, purchasing_application_id, material_id, purchase_quantity, demanded_quantity, demanded_date, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.purchasingApplicationId}, #{item.materialId}, #{item.purchaseQuantity}, #{item.demandedQuantity}, #{item.demandedDate}, #{item.remark})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesInspectionStandardsMapper">
+    
+    <resultMap type="MesInspectionStandards" id="MesInspectionStandardsResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="checkItem"    column="check_item"    />
+        <result property="checkType"    column="check_type"    />
+        <result property="upLimit"    column="up_limit"    />
+        <result property="lowerLimit"    column="lower_limit"    />
+        <result property="remark"    column="remark"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"    />
+        <result property="materialUnit"    column="material_unit"    />
+    </resultMap>
+
+    <sql id="selectMesInspectionStandardsVo">
+        select a.id,  a.material_id, a.check_item,  a.check_type,  a.up_limit,  a.lower_limit,  a.remark,
+				b.material_name,b.material_model,b.material_specifications,b.material_unit
+				from mes_inspection_standards a
+    </sql>
+
+    <select id="selectMesInspectionStandardsList" parameterType="MesInspectionStandards" resultMap="MesInspectionStandardsResult">
+        <include refid="selectMesInspectionStandardsVo"/>
+        LEFT JOIN wms_material b on a.material_id = b.id
+        <where>  
+            <if test="checkItem != null  and checkItem != ''"> and a.check_item = #{checkItem}</if>
+            <if test="materialId != null  and materialId != ''"> and a.material_id = #{materialId}</if>
+            <if test="checkType != null "> and a.check_type = #{checkType}</if>
+            <if test="materialName != null  and materialName != ''"> and b.material_name like concat('%', #{materialName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectMesInspectionStandardsById" parameterType="Long" resultMap="MesInspectionStandardsResult">
+        <include refid="selectMesInspectionStandardsVo"/>
+        LEFT JOIN wms_material b on a.material_id = b.id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertMesInspectionStandards" parameterType="MesInspectionStandards" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_inspection_standards
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">material_id,</if>
+            <if test="checkItem != null and checkItem != ''">check_item,</if>
+            <if test="checkType != null">check_type,</if>
+            <if test="upLimit != null">up_limit,</if>
+            <if test="lowerLimit != null">lower_limit,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId},</if>
+            <if test="checkItem != null and checkItem != ''">#{checkItem},</if>
+            <if test="checkType != null">#{checkType},</if>
+            <if test="upLimit != null">#{upLimit},</if>
+            <if test="lowerLimit != null">#{lowerLimit},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesInspectionStandards" parameterType="MesInspectionStandards">
+        update mes_inspection_standards
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="checkItem != null and checkItem != ''">check_item = #{checkItem},</if>
+            <if test="checkType != null">check_type = #{checkType},</if>
+            <if test="upLimit != null">up_limit = #{upLimit},</if>
+            <if test="lowerLimit != null">lower_limit = #{lowerLimit},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesInspectionStandardsById" parameterType="Long">
+        delete from mes_inspection_standards where id = #{id}
+    </delete>
+
+    <delete id="deleteMesInspectionStandardsByIds" parameterType="String">
+        delete from mes_inspection_standards where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

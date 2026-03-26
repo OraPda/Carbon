@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesProductionCompletionMapper">
+    
+    <resultMap type="MesProductionCompletion" id="MesProductionCompletionResult">
+        <result property="id"    column="id"    />
+        <result property="oddNumbers"    column="odd_numbers"    />
+        <result property="jobId"    column="job_id"    />
+        <result property="jobName"    column="job_name"    />
+        <result property="planNumber"    column="plan_number"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"   />
+        <result property="materialUnit"    column="material_unit"   />
+        <result property="completionDate"    column="completion_date"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="batchNumber"    column="batch_number"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectMesProductionCompletionVo">
+        select a.id, a.odd_numbers, a.job_id, b.job_name, d.plan_number, a.material_id, e.material_name, e.material_model, e.material_specifications, e.material_unit, a.completion_date, a.quantity, a.batch_number, a.status, a.remark from mes_production_completion a
+    </sql>
+
+    <select id="selectMesProductionCompletionList" parameterType="MesProductionCompletion" resultMap="MesProductionCompletionResult">
+        <include refid="selectMesProductionCompletionVo"/>
+        left join mes_job_assembly b on a.job_id = b.id
+        left join mes_planned_production c on b.planned_production_id = c.id
+        left join mes_production_plan d on c.production_plan_id = d.id
+        left join wms_material e on a.material_id = e.id
+        <where>
+            <if test="planNumber != null "> and d.plan_number like concat('%', #{planNumber}, '%')</if>
+            <if test="jobName != null "> and b.job_name like concat('%', #{jobName}, '%')</if>
+            <if test="materialName != null "> and e.material_name like concat('%', #{materialName}, '%')</if>
+            <if test="params.beginCompletionDate != null and params.beginCompletionDate != '' and params.endCompletionDate != null and params.endCompletionDate != ''"> and a.completion_date between #{params.beginCompletionDate} and #{params.endCompletionDate}</if>
+            <if test="batchNumber != null "> and a.batch_number = #{batchNumber}</if>
+            <if test="status != null "> and a.status = #{status}</if>
+        </where>
+        order by a.id desc
+    </select>
+    
+    <select id="selectMesProductionCompletionById" parameterType="Long" resultMap="MesProductionCompletionResult">
+        <include refid="selectMesProductionCompletionVo"/>
+        left join mes_job_assembly b on a.job_id = b.id
+        left join mes_planned_production c on b.planned_production_id = c.id
+        left join mes_production_plan d on c.production_plan_id = d.id
+        left join wms_material e on a.material_id = e.id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertMesProductionCompletion" parameterType="MesProductionCompletion" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_production_completion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="oddNumbers != null">odd_numbers,</if>
+            <if test="jobId != null">job_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="completionDate != null">completion_date,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="batchNumber != null and batchNumber != ''">batch_number,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="oddNumbers != null">#{oddNumbers},</if>
+            <if test="jobId != null">#{jobId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="completionDate != null">#{completionDate},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="batchNumber != null and batchNumber != ''">#{batchNumber},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesProductionCompletion" parameterType="MesProductionCompletion">
+        update mes_production_completion
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="oddNumbers != null">odd_numbers = #{oddNumbers},</if>
+            <if test="jobId != null">job_id = #{jobId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="completionDate != null">completion_date = #{completionDate},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="batchNumber != null and batchNumber != ''">batch_number = #{batchNumber},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesProductionCompletionById" parameterType="Long">
+        delete from mes_production_completion where id = #{id}
+    </delete>
+
+    <delete id="deleteMesProductionCompletionByIds" parameterType="String">
+        delete from mes_production_completion where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

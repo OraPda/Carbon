@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.wms.mapper.WmsReplenishmentApplicationMapper">
+    
+    <resultMap type="WmsReplenishmentApplication" id="WmsReplenishmentApplicationResult">
+        <result property="id"    column="id"    />
+        <result property="documentNumber"    column="document_number"    />
+        <result property="status"    column="status"    />
+        <result property="applicant"    column="applicant"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="applicationStatus"    column="application_status"    />
+        <result property="approved"    column="approved"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="approvedStatus"    column="approved_status"    />
+        <result property="approvedComments"    column="approved_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="purchaseApplyFlag"    column="purchase_apply_flag"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="approvedName"    column="approved_name"    />
+    </resultMap>
+
+    <resultMap id="WmsReplenishmentApplicationWmsReplenishmentApplicationDetailsResult" type="WmsReplenishmentApplication" extends="WmsReplenishmentApplicationResult">
+        <collection property="wmsReplenishmentApplicationDetailsList" notNullColumn="sub_id" javaType="java.util.List" resultMap="WmsReplenishmentApplicationDetailsResult" />
+    </resultMap>
+
+    <resultMap type="WmsReplenishmentApplicationDetails" id="WmsReplenishmentApplicationDetailsResult">
+        <result property="id"    column="sub_id"    />
+        <result property="replenishmentApplicationId"    column="sub_replenishment_application_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="replenishmentNumber"    column="sub_replenishment_number"    />
+        <result property="remark"    column="sub_remark"    />
+    </resultMap>
+
+    <sql id="selectWmsReplenishmentApplicationVo">
+        select a.id, a.document_number, a.status, a.applicant, a.application_date,
+               a.application_status, a.approved, a.approved_date, a.approved_status,
+               a.approved_comments, a.remark, a.purchase_apply_flag,
+               c.user_name as applicant_name,d.user_name as approved_name from wms_replenishment_application a
+    </sql>
+
+    <select id="selectWmsReplenishmentApplicationList" parameterType="WmsReplenishmentApplication" resultMap="WmsReplenishmentApplicationResult">
+        <include refid="selectWmsReplenishmentApplicationVo"/>
+        LEFT JOIN sys_user c on a.approved = c.user_id
+        LEFT JOIN sys_user d on a.applicant = d.user_id
+        <where>  
+            <if test="documentNumber != null  and documentNumber != ''"> and document_number = #{documentNumber}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="applicant != null "> and a.applicant = #{applicant}</if>
+            <if test="params.beginApplicationDate != null and params.beginApplicationDate != '' and params.endApplicationDate != null and params.endApplicationDate != ''"> and application_date between #{params.beginApplicationDate} and #{params.endApplicationDate}</if>
+            <if test="applicationStatus != null "> and application_status = #{applicationStatus}</if>
+            <if test="approved != null "> and a.approved = #{approved}</if>
+            <if test="params.beginApprovedDate != null and params.beginApprovedDate != '' and params.endApprovedDate != null and params.endApprovedDate != ''"> and approved_date between #{params.beginApprovedDate} and #{params.endApprovedDate}</if>
+            <if test="approvedStatus != null "> and approved_status = #{approvedStatus}</if>
+            <if test="approvedComments != null  and approvedComments != ''"> and approved_comments = #{approvedComments}</if>
+            <if test="purchaseApplyFlag != null "> and purchase_apply_flag = #{purchaseApplyFlag}</if>
+        </where>
+    </select>
+
+    <select id="selectWmsReplenishmentApplicationById" parameterType="Long" resultMap="WmsReplenishmentApplicationWmsReplenishmentApplicationDetailsResult">
+        select a.id, a.document_number, a.status, a.applicant, a.application_date, a.application_status, a.approved, a.approved_date, a.approved_status, a.approved_comments, a.remark,
+               b.id as sub_id, b.replenishment_application_id as sub_replenishment_application_id, b.material_id as sub_material_id, b.replenishment_number as sub_replenishment_number, b.remark as sub_remark
+        from wms_replenishment_application a
+        left join wms_replenishment_application_details b on b.replenishment_application_id = a.id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertWmsReplenishmentApplication" parameterType="WmsReplenishmentApplication" useGeneratedKeys="true" keyProperty="id">
+        insert into wms_replenishment_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="documentNumber != null">document_number,</if>
+            <if test="status != null">status,</if>
+            <if test="applicant != null">applicant,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="applicationStatus != null">application_status,</if>
+            <if test="approved != null">approved,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="approvedStatus != null">approved_status,</if>
+            <if test="approvedComments != null">approved_comments,</if>
+            <if test="remark != null">remark,</if>
+            <if test="purchaseApplyFlag != null">purchase_apply_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="documentNumber != null">#{documentNumber},</if>
+            <if test="status != null">#{status},</if>
+            <if test="applicant != null">#{applicant},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="applicationStatus != null">#{applicationStatus},</if>
+            <if test="approved != null">#{approved},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="approvedStatus != null">#{approvedStatus},</if>
+            <if test="approvedComments != null">#{approvedComments},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="purchaseApplyFlag != null">#{purchaseApplyFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWmsReplenishmentApplication" parameterType="WmsReplenishmentApplication">
+        update wms_replenishment_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="documentNumber != null">document_number = #{documentNumber},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="applicant != null">applicant = #{applicant},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="applicationStatus != null">application_status = #{applicationStatus},</if>
+            <if test="approved != null">approved = #{approved},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="approvedStatus != null">approved_status = #{approvedStatus},</if>
+            <if test="approvedComments != null">approved_comments = #{approvedComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="purchaseApplyFlag != null">purchase_apply_flag = #{purchaseApplyFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWmsReplenishmentApplicationById" parameterType="Long">
+        delete from wms_replenishment_application where id = #{id}
+    </delete>
+
+    <delete id="deleteWmsReplenishmentApplicationByIds" parameterType="String">
+        delete from wms_replenishment_application where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteWmsReplenishmentApplicationDetailsByIds" parameterType="String">
+        delete from wms_replenishment_application_details where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWmsReplenishmentApplicationDetailsById" parameterType="Long">
+        delete from wms_replenishment_application_details where id = #{id}
+    </delete>
+
+    <insert id="batchWmsReplenishmentApplicationDetails">
+        insert into wms_replenishment_application_details( id, replenishment_application_id, material_id, replenishment_number, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.replenishmentApplicationId}, #{item.materialId}, #{item.replenishmentNumber}, #{item.remark})
+        </foreach>
+    </insert>
+</mapper>

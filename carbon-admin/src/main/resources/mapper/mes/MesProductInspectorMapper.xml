@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesProductInspectorMapper">
+
+    <resultMap type="MesProductInspector" id="MesProductInspectorResult">
+        <result property="id"    column="id"    />
+        <result property="serialNumber"    column="serial_number"    />
+        <result property="productionCompletionId"    column="production_completion_id"    />
+        <result property="planNumber"    column="plan_number"    />
+        <result property="oddNumbers"    column="odd_numbers"    />
+        <result property="jobName"    column="job_name"    />
+        <result property="productionLine"    column="production_line"    />
+        <result property="batchNumber"    column="batch_number"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="manufactureDate"    column="manufacture_date"    />
+        <result property="checkItem"    column="check_item"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="standardsId"    column="standards_id"    />
+        <result property="sampleQuantity"    column="sample_quantity"    />
+        <result property="inspectionValue"    column="inspection_value"    />
+        <result property="upLimit"    column="up_limit"    />
+        <result property="lowerLimit"    column="lower_limit"    />
+        <result property="result"    column="result"    />
+        <result property="checkUserId"    column="check_user_id"    />
+        <result property="checkUserName"    column="check_user_name"    />
+        <result property="inspectorTime"    column="inspector_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectMesProductInspectorVo">
+         select a.id, a.serial_number, a.production_completion_id,
+         e.plan_number, b.odd_numbers, c.job_name, f.production_line,
+         b.batch_number, g.material_name, d.manufacture_date, h.check_item,
+         c.quantity, a.standards_id, a.sample_quantity, a.inspection_value,
+         h.up_limit, h.lower_limit, a.result, a.check_user_id, i.user_name as check_user_name, a.inspector_time, a.remark from mes_product_inspector a
+    </sql>
+
+    <select id="selectMesProductInspectorList" parameterType="MesProductInspector" resultMap="MesProductInspectorResult">
+        <include refid="selectMesProductInspectorVo"/>
+        left join mes_production_completion b on a.production_completion_id = b.id
+        left join mes_job_assembly c on b.job_id = c.id
+        left join mes_planned_production d on c.planned_production_id = d.id
+        left join mes_production_plan e on d.production_plan_id = e.id
+        left join mes_factory f on d.factory_id = f.id
+        left join wms_material g on b.material_id = g.id
+        left join mes_inspection_standards h on a.standards_id = h.id
+        left join sys_user i on a.check_user_id = i.user_id
+        <where>
+            <if test="serialNumber != null  and serialNumber != ''"> and a.serial_number like concat('%', #{serialNumber}, '%')</if>
+            <if test="oddNumbers != null  and oddNumbers != ''"> and b.odd_numbers like concat('%', #{oddNumbers}, '%')</if>
+            <if test="planNumber != null  and planNumber != ''"> and e.plan_number like concat('%', #{planNumber}, '%')</if>
+            <if test="jobName != null  and jobName != ''"> and c.job_name like concat('%', #{jobName}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and g.material_name like concat('%', #{materialName}, '%')</if>
+            <if test="batchNumber != null  and batchNumber != ''"> and b.batch_number like concat('%', #{batchNumber}, '%')</if>
+            <if test="params.beginManufactureDate != null and params.beginManufactureDate != '' and params.endManufactureDate != null and params.endManufactureDate != ''"> and d.manufacture_date between #{params.beginManufactureDate} and #{params.endManufactureDate}</if>
+            <if test="checkItem != null  and checkItem != ''"> and h.check_item like concat('%', #{checkItem}, '%')</if>
+            <if test="result != null"> and a.result = #{result}</if>
+            <if test="checkUserId != null"> and a.check_user_id = #{checkUserId}</if>
+            <if test="params.beginInspectorTime != null and params.beginInspectorTime != '' and params.endInspectorTime != null and params.endInspectorTime != ''"> and a.inspector_time between #{params.beginInspectorTime} and #{params.endInspectorTime}</if>
+        </where>
+        order by a.id desc
+    </select>
+
+    <select id="selectMesProductInspectorById" parameterType="Long" resultMap="MesProductInspectorResult">
+        <include refid="selectMesProductInspectorVo"/>
+        left join mes_production_completion b on a.production_completion_id = b.id
+        left join mes_job_assembly c on b.job_id = c.id
+        left join mes_planned_production d on c.planned_production_id = d.id
+        left join mes_production_plan e on d.production_plan_id = e.id
+        left join mes_factory f on d.factory_id = f.id
+        left join wms_material g on b.material_id = g.id
+        left join mes_inspection_standards h on a.standards_id = h.id
+        left join sys_user i on a.check_user_id = i.user_id
+        where a.id = #{id}
+    </select>
+
+    <insert id="insertMesProductInspector" parameterType="MesProductInspector" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_product_inspector
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number,</if>
+            <if test="productionCompletionId != null">production_completion_id,</if>
+            <if test="standardsId != null">standards_id,</if>
+            <if test="sampleQuantity != null">sample_quantity,</if>
+            <if test="inspectionValue != null">inspection_value,</if>
+            <if test="result != null">result,</if>
+            <if test="checkUserId != null">check_user_id,</if>
+            <if test="inspectorTime != null">inspector_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">#{serialNumber},</if>
+            <if test="productionCompletionId != null">#{productionCompletionId},</if>
+            <if test="standardsId != null">#{standardsId},</if>
+            <if test="sampleQuantity != null">#{sampleQuantity},</if>
+            <if test="inspectionValue != null">#{inspectionValue},</if>
+            <if test="result != null">#{result},</if>
+            <if test="checkUserId != null">#{checkUserId},</if>
+            <if test="inspectorTime != null">#{inspectorTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesProductInspector" parameterType="MesProductInspector">
+        update mes_product_inspector
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number = #{serialNumber},</if>
+            <if test="productionCompletionId != null">production_completion_id = #{productionCompletionId},</if>
+            <if test="standardsId != null">standards_id = #{standardsId},</if>
+            <if test="sampleQuantity != null">sample_quantity = #{sampleQuantity},</if>
+            <if test="inspectionValue != null">inspection_value = #{inspectionValue},</if>
+            <if test="result != null">result = #{result},</if>
+            <if test="checkUserId != null">check_user_id = #{checkUserId},</if>
+            <if test="inspectorTime != null">inspector_time = #{inspectorTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesProductInspectorById" parameterType="Long">
+        delete from mes_product_inspector where id = #{id}
+    </delete>
+
+    <delete id="deleteMesProductInspectorByIds" parameterType="String">
+        delete from mes_product_inspector where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

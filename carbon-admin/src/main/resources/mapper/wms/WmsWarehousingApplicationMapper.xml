@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.wms.mapper.WmsWarehousingApplicationMapper">
+    
+    <resultMap type="WmsWarehousingApplication" id="WmsWarehousingApplicationResult">
+        <result property="id"    column="id"    />
+        <result property="documentNo"    column="document_no"    />
+        <result property="documentNoId"    column="document_no_id"    />
+        <result property="applicant"    column="applicant"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="applicationStatus"    column="application_status"    />
+        <result property="approved"    column="approved"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="approvedStatus"    column="approved_status"    />
+        <result property="approvedComments"    column="approved_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="businessType"    column="business_type"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="contractType"    column="contract_type"    />
+        <result property="applicationType"    column="application_type"    />
+        <result property="documentStatus"    column="document_status"    />
+        <result property="supplierName"    column="supplier_name"    />
+        <result property="userName"    column="user_name"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="contractNo"    column="contract_no"    />
+    </resultMap>
+
+    <resultMap id="WmsWarehousingApplicationWmsWarehousingApplicationDetailsResult" type="WmsWarehousingApplication" extends="WmsWarehousingApplicationResult">
+        <collection property="wmsWarehousingApplicationDetailsList" notNullColumn="sub_id" javaType="java.util.List" resultMap="WmsWarehousingApplicationDetailsResult" />
+    </resultMap>
+
+    <resultMap type="WmsWarehousingApplicationDetails" id="WmsWarehousingApplicationDetailsResult">
+        <result property="id"    column="sub_id"    />
+        <result property="warehousingApplicationId"    column="sub_warehousing_application_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="warehouseId"    column="sub_warehouse_id"    />
+        <result property="warehouseAreaId"    column="sub_warehouse_area_id"    />
+        <result property="warehouseSeatId"    column="sub_warehouse_seat_id"    />
+        <result property="arrivalNum"    column="sub_arrival_num"    />
+        <result property="receiptNum"    column="sub_receipt_num"    />
+        <result property="batchNumber"    column="sub_batch_number"    />
+        <result property="manufactureDate"    column="sub_manufacture_date"    />
+        <result property="productionUnit"    column="sub_production_unit"    />
+    </resultMap>
+
+    <sql id="selectWmsWarehousingApplicationVo">
+        select a.id, a.document_no, a.document_no_id, a.applicant, a.application_date,
+               a.application_status, a.approved, a.approved_date, a.approved_status, a.approved_comments,
+               a.remark, a.business_type, a.supplier_id, a.contract_type, a.application_type, a.document_status,
+               b.supplier_name,c.user_name,d.user_name as applicant_name from wms_warehousing_application a
+    </sql>
+
+    <select id="selectWmsWarehousingApplicationList" parameterType="WmsWarehousingApplication" resultMap="WmsWarehousingApplicationResult">
+        <include refid="selectWmsWarehousingApplicationVo"/>
+        LEFT JOIN scm_purchasing_supplier b on a.supplier_id = b.id
+        LEFT JOIN sys_user c on a.approved = c.user_id
+        LEFT JOIN sys_user d on a.applicant = d.user_id
+        <where>
+            <if test="documentNo != null "> and a.document_no like concat('%', #{documentNo}, '%')</if>
+            <if test="documentNoId != null "> and document_no_id = #{documentNoId}</if>
+            <if test="applicant != null "> and applicant = #{applicant}</if>
+            <if test="params.beginApplicationDate != null and params.beginApplicationDate != '' and params.endApplicationDate != null and params.endApplicationDate != ''"> and application_date between #{params.beginApplicationDate} and #{params.endApplicationDate}</if>
+            <if test="applicationStatus != null "> and application_status = #{applicationStatus}</if>
+            <if test="approved != null "> and approved = #{approved}</if>
+            <if test="params.beginApprovedDate != null and params.beginApprovedDate != '' and params.endApprovedDate != null and params.endApprovedDate != ''"> and approved_date between #{params.beginApprovedDate} and #{params.endApprovedDate}</if>
+            <if test="approvedStatus != null "> and a.approved_status = #{approvedStatus}</if>
+            <if test="approvedComments != null  and approvedComments != ''"> and approved_comments = #{approvedComments}</if>
+            <if test="businessType != null "> and business_type = #{businessType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="applicationType != null "> and application_type = #{applicationType}</if>
+            <if test="documentStatus != null "> and document_status = #{documentStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectWmsWarehousingApplicationById" parameterType="Long" resultMap="WmsWarehousingApplicationWmsWarehousingApplicationDetailsResult">
+        select a.id, a.document_no, a.document_no_id, a.applicant, a.application_date, a.application_status,
+               a.approved, a.approved_date, a.approved_status, a.approved_comments, a.remark, a.business_type,
+               a.supplier_id, a.contract_type, a.application_type, a.document_status,
+ b.id as sub_id, b.warehousing_application_id as sub_warehousing_application_id, b.material_id as sub_material_id, b.warehouse_id as sub_warehouse_id, b.warehouse_area_id as sub_warehouse_area_id, b.warehouse_seat_id as sub_warehouse_seat_id, b.arrival_num as sub_arrival_num, b.receipt_num as sub_receipt_num, b.batch_number as sub_batch_number, b.manufacture_date as sub_manufacture_date, b.production_unit as sub_production_unit
+        from wms_warehousing_application a
+        left join wms_warehousing_application_details b on b.id = a.id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertWmsWarehousingApplication" parameterType="WmsWarehousingApplication" useGeneratedKeys="true" keyProperty="id">
+        insert into wms_warehousing_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null">document_no,</if>
+            <if test="documentNoId != null">document_no_id,</if>
+            <if test="applicant != null">applicant,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="applicationStatus != null">application_status,</if>
+            <if test="approved != null">approved,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="approvedStatus != null">approved_status,</if>
+            <if test="approvedComments != null">approved_comments,</if>
+            <if test="remark != null">remark,</if>
+            <if test="businessType != null">business_type,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="contractType != null">contract_type,</if>
+            <if test="applicationType != null">application_type,</if>
+            <if test="documentStatus != null">document_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null">#{documentNo},</if>
+            <if test="documentNoId != null">#{documentNoId},</if>
+            <if test="applicant != null">#{applicant},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="applicationStatus != null">#{applicationStatus},</if>
+            <if test="approved != null">#{approved},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="approvedStatus != null">#{approvedStatus},</if>
+            <if test="approvedComments != null">#{approvedComments},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="businessType != null">#{businessType},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="contractType != null">#{contractType},</if>
+            <if test="applicationType != null">#{applicationType},</if>
+            <if test="documentStatus != null">#{documentStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWmsWarehousingApplication" parameterType="WmsWarehousingApplication">
+        update wms_warehousing_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="documentNo != null">document_no = #{documentNo},</if>
+            <if test="documentNoId != null">document_no_id = #{documentNoId},</if>
+            <if test="applicant != null">applicant = #{applicant},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="applicationStatus != null">application_status = #{applicationStatus},</if>
+            <if test="approved != null">approved = #{approved},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="approvedStatus != null">approved_status = #{approvedStatus},</if>
+            <if test="approvedComments != null">approved_comments = #{approvedComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="businessType != null">business_type = #{businessType},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="contractType != null">contract_type = #{contractType},</if>
+            <if test="applicationType != null">application_type = #{applicationType},</if>
+            <if test="documentStatus != null">document_status = #{documentStatus},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWmsWarehousingApplicationById" parameterType="Long">
+        delete from wms_warehousing_application where id = #{id}
+    </delete>
+
+    <delete id="deleteWmsWarehousingApplicationByIds" parameterType="String">
+        delete from wms_warehousing_application where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteWmsWarehousingApplicationDetailsByIds" parameterType="String">
+        delete from wms_warehousing_application_details where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWmsWarehousingApplicationDetailsById" parameterType="Long">
+        delete from wms_warehousing_application_details where id = #{id}
+    </delete>
+
+    <insert id="batchWmsWarehousingApplicationDetails">
+        insert into wms_warehousing_application_details( id, warehousing_application_id, material_id, warehouse_id, warehouse_area_id, warehouse_seat_id, arrival_num, receipt_num, batch_number, manufacture_date, production_unit) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.warehousingApplicationId}, #{item.materialId}, #{item.warehouseId}, #{item.warehouseAreaId}, #{item.warehouseSeatId}, #{item.arrivalNum}, #{item.receiptNum}, #{item.batchNumber}, #{item.manufactureDate}, #{item.productionUnit})
+        </foreach>
+    </insert>
+</mapper>

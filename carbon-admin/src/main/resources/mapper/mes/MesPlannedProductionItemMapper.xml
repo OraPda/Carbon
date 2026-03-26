@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesPlannedProductionItemMapper">
+    
+    <resultMap type="MesPlannedProductionItem" id="MesPlannedProductionItemResult">
+        <result property="id"    column="id"    />
+        <result property="productionId"    column="production_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="dosage"    column="dosage"    />
+        <result property="usedQuantity"    column="used_quantity"    />
+        <result property="residueQuantity"    column="residue_quantity"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectMesPlannedProductionItemVo">
+        select id, production_id, material_id, dosage, used_quantity, residue_quantity, remark from mes_planned_production_item
+    </sql>
+
+    <select id="selectMesPlannedProductionItemList" parameterType="MesPlannedProductionItem" resultMap="MesPlannedProductionItemResult">
+        <include refid="selectMesPlannedProductionItemVo"/>
+        <where>  
+            <if test="productionId != null "> and production_id = #{productionId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="dosage != null "> and dosage = #{dosage}</if>
+            <if test="usedQuantity != null "> and used_quantity = #{usedQuantity}</if>
+            <if test="residueQuantity != null "> and residue_quantity = #{residueQuantity}</if>
+        </where>
+    </select>
+    
+    <select id="selectMesPlannedProductionItemById" parameterType="Long" resultMap="MesPlannedProductionItemResult">
+        <include refid="selectMesPlannedProductionItemVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertMesPlannedProductionItem" parameterType="MesPlannedProductionItem" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_planned_production_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productionId != null">production_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="dosage != null">dosage,</if>
+            <if test="usedQuantity != null">used_quantity,</if>
+            <if test="residueQuantity != null">residue_quantity,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productionId != null">#{productionId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="dosage != null">#{dosage},</if>
+            <if test="usedQuantity != null">#{usedQuantity},</if>
+            <if test="residueQuantity != null">#{residueQuantity},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesPlannedProductionItem" parameterType="MesPlannedProductionItem">
+        update mes_planned_production_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productionId != null">production_id = #{productionId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="dosage != null">dosage = #{dosage},</if>
+            <if test="usedQuantity != null">used_quantity = #{usedQuantity},</if>
+            <if test="residueQuantity != null">residue_quantity = #{residueQuantity},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesPlannedProductionItemById" parameterType="Long">
+        delete from mes_planned_production_item where id = #{id}
+    </delete>
+
+    <delete id="deleteMesPlannedProductionItemByIds" parameterType="String">
+        delete from mes_planned_production_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.wms.mapper.WmsOutboundApplicationMapper">
+    
+    <resultMap type="WmsOutboundApplication" id="WmsOutboundApplicationResult">
+        <result property="id"    column="id"    />
+        <result property="documentNo"    column="document_no"    />
+        <result property="documentNoId"    column="document_no_id"    />
+        <result property="businessType"    column="business_type"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="documentStatus"    column="document_status"    />
+        <result property="contractType"    column="contract_type"    />
+        <result property="applicationType"    column="application_type"    />
+        <result property="applicant"    column="applicant"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="applicationStatus"    column="application_status"    />
+        <result property="approved"    column="approved"    />
+        <result property="approvedDate"    column="approved_date"    />
+        <result property="approvedStatus"    column="approved_status"    />
+        <result property="approvedComments"    column="approved_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="customName"    column="custom_name"    />
+        <result property="applicantName"    column="applicant_name"    />
+        <result property="approvedName"    column="approved_name"    />
+    </resultMap>
+
+    <resultMap id="WmsOutboundApplicationWmsOutboundApplicationDetailsResult" type="WmsOutboundApplication" extends="WmsOutboundApplicationResult">
+        <collection property="wmsOutboundApplicationDetailsList" notNullColumn="sub_id" javaType="java.util.List" resultMap="WmsOutboundApplicationDetailsResult" />
+    </resultMap>
+
+    <resultMap type="WmsOutboundApplicationDetails" id="WmsOutboundApplicationDetailsResult">
+        <result property="id"    column="sub_id"    />
+        <result property="outboundApplicationId"    column="sub_outbound_application_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="warehouseId"    column="sub_warehouse_id"    />
+        <result property="warehouseAreaId"    column="sub_warehouse_area_id"    />
+        <result property="warehouseSeatId"    column="sub_warehouse_seat_id"    />
+        <result property="outboundNumber"    column="sub_outbound_number"    />
+        <result property="batchNumber"    column="sub_batch_number"    />
+    </resultMap>
+
+    <sql id="selectWmsOutboundApplicationVo">
+        select a.*,
+				c.custom_name,d.user_name as applicant_name,e.user_name as approved_name
+				from wms_outbound_application a
+    </sql>
+
+    <select id="selectWmsOutboundApplicationList" parameterType="WmsOutboundApplication" resultMap="WmsOutboundApplicationResult">
+        <include refid="selectWmsOutboundApplicationVo"/>
+        LEFT JOIN scm_sale_custom c ON a.customer_id = c.id
+        LEFT JOIN sys_user d ON a.applicant = d.user_id
+        LEFT JOIN sys_user e ON a.approved = e.user_id
+        <where>  
+            <if test="documentNo != null  and documentNo != ''">and a.document_no like concat('%', #{documentNo}, '%')</if>
+            <if test="businessType != null "> and business_type = #{businessType}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="documentStatus != null "> and document_status = #{documentStatus}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="applicationType != null "> and application_type = #{applicationType}</if>
+            <if test="applicant != null "> and applicant = #{applicant}</if>
+            <if test="params.beginApplicationDate != null and params.beginApplicationDate != '' and params.endApplicationDate != null and params.endApplicationDate != ''"> and application_date between #{params.beginApplicationDate} and #{params.endApplicationDate}</if>
+            <if test="applicationStatus != null "> and application_status = #{applicationStatus}</if>
+            <if test="approved != null "> and approved = #{approved}</if>
+            <if test="params.beginApprovedDate != null and params.beginApprovedDate != '' and params.endApprovedDate != null and params.endApprovedDate != ''"> and approved_date between #{params.beginApprovedDate} and #{params.endApprovedDate}</if>
+            <if test="approvedStatus != null "> and approved_status = #{approvedStatus}</if>
+            <if test="approvedComments != null  and approvedComments != ''"> and approved_comments = #{approvedComments}</if>
+        </where>
+    </select>
+    
+    <select id="selectWmsOutboundApplicationById" parameterType="String" resultMap="WmsOutboundApplicationWmsOutboundApplicationDetailsResult">
+        select a.id,
+        a.document_no,
+        a.document_no_id,
+        a.business_type,
+        a.customer_id,
+        a.document_status,
+        a.contract_type,
+        a.application_type,
+        a.applicant,
+        a.application_date,
+        a.application_status,
+        a.approved,
+        a.approved_date,
+        a.approved_status,
+        a.approved_comments,
+        a.remark,
+        b.id as sub_id,
+        b.outbound_application_id as sub_outbound_application_id,
+        b.material_id as sub_material_id,
+        b.warehouse_id as sub_warehouse_id,
+        b.warehouse_area_id as sub_warehouse_area_id,
+        b.warehouse_seat_id as sub_warehouse_seat_id,
+        b.outbound_number as sub_outbound_number,
+        b.batch_number as sub_batch_number,
+        c.custom_name,d.user_name as applicant_name,e.user_name as approved_name
+        from wms_outbound_application a
+        left join wms_outbound_application_details b on b.outbound_application_id = a.id
+        LEFT JOIN scm_sale_custom c ON a.customer_id = c.id
+        LEFT JOIN sys_user d ON a.applicant = d.user_id
+        LEFT JOIN sys_user e ON a.approved = e.user_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertWmsOutboundApplication" parameterType="WmsOutboundApplication" useGeneratedKeys="true" keyProperty="id">
+        insert into wms_outbound_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null">document_no,</if>
+            <if test="documentNoId != null">document_no_id,</if>
+            <if test="businessType != null">business_type,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="documentStatus != null">document_status,</if>
+            <if test="contractType != null">contract_type,</if>
+            <if test="applicationType != null">application_type,</if>
+            <if test="applicant != null">applicant,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="applicationStatus != null">application_status,</if>
+            <if test="approved != null">approved,</if>
+            <if test="approvedDate != null">approved_date,</if>
+            <if test="approvedStatus != null">approved_status,</if>
+            <if test="approvedComments != null">approved_comments,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="documentNo != null">#{documentNo},</if>
+            <if test="documentNoId != null">#{documentNoId},</if>
+            <if test="businessType != null">#{businessType},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="documentStatus != null">#{documentStatus},</if>
+            <if test="contractType != null">#{contractType},</if>
+            <if test="applicationType != null">#{applicationType},</if>
+            <if test="applicant != null">#{applicant},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="applicationStatus != null">#{applicationStatus},</if>
+            <if test="approved != null">#{approved},</if>
+            <if test="approvedDate != null">#{approvedDate},</if>
+            <if test="approvedStatus != null">#{approvedStatus},</if>
+            <if test="approvedComments != null">#{approvedComments},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWmsOutboundApplication" parameterType="WmsOutboundApplication">
+        update wms_outbound_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="documentNo != null">document_no = #{documentNo},</if>
+            <if test="documentNoId != null">document_no_id = #{documentNoId},</if>
+            <if test="businessType != null">business_type = #{businessType},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="documentStatus != null">document_status = #{documentStatus},</if>
+            <if test="contractType != null">contract_type = #{contractType},</if>
+            <if test="applicationType != null">application_type = #{applicationType},</if>
+            <if test="applicant != null">applicant = #{applicant},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="applicationStatus != null">application_status = #{applicationStatus},</if>
+            <if test="approved != null">approved = #{approved},</if>
+            <if test="approvedDate != null">approved_date = #{approvedDate},</if>
+            <if test="approvedStatus != null">approved_status = #{approvedStatus},</if>
+            <if test="approvedComments != null">approved_comments = #{approvedComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWmsOutboundApplicationById" parameterType="String">
+        delete from wms_outbound_application where id = #{id}
+    </delete>
+
+    <delete id="deleteWmsOutboundApplicationByIds" parameterType="String">
+        delete from wms_outbound_application where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteWmsOutboundApplicationDetailsByOutboundApplicationIds" parameterType="String">
+        delete from wms_outbound_application_details where outbound_application_id in 
+        <foreach item="outboundApplicationId" collection="array" open="(" separator="," close=")">
+            #{outboundApplicationId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteWmsOutboundApplicationDetailsByOutboundApplicationId" parameterType="String">
+        delete from wms_outbound_application_details where outbound_application_id = #{outboundApplicationId}
+    </delete>
+
+    <insert id="batchWmsOutboundApplicationDetails">
+        insert into wms_outbound_application_details( id, outbound_application_id, material_id, warehouse_id, warehouse_area_id, warehouse_seat_id, outbound_number, batch_number) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.outboundApplicationId}, #{item.materialId}, #{item.warehouseId}, #{item.warehouseAreaId}, #{item.warehouseSeatId}, #{item.outboundNumber}, #{item.batchNumber})
+        </foreach>
+    </insert>
+</mapper>

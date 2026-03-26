@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.mes.mapper.MesErrorManagementMapper">
+    
+    <resultMap type="MesErrorManagement" id="MesErrorManagementResult">
+        <result property="id"    column="id"    />
+        <result property="errorItem"    column="error_item"    />
+        <result property="errorType"    column="error_type"    />
+        <result property="result"    column="result"    />
+        <result property="preventiveMeasures"    column="preventive_measures"    />
+    </resultMap>
+
+    <sql id="selectMesErrorManagementVo">
+        select id, error_item, error_type, result, preventive_measures from mes_error_management
+    </sql>
+
+    <select id="selectMesErrorManagementList" parameterType="MesErrorManagement" resultMap="MesErrorManagementResult">
+        <include refid="selectMesErrorManagementVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectMesErrorManagementById" parameterType="Long" resultMap="MesErrorManagementResult">
+        <include refid="selectMesErrorManagementVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertMesErrorManagement" parameterType="MesErrorManagement" useGeneratedKeys="true" keyProperty="id">
+        insert into mes_error_management
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="errorItem != null and errorItem != ''">error_item,</if>
+            <if test="errorType != null">error_type,</if>
+            <if test="result != null and result != ''">result,</if>
+            <if test="preventiveMeasures != null and preventiveMeasures != ''">preventive_measures,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="errorItem != null and errorItem != ''">#{errorItem},</if>
+            <if test="errorType != null">#{errorType},</if>
+            <if test="result != null and result != ''">#{result},</if>
+            <if test="preventiveMeasures != null and preventiveMeasures != ''">#{preventiveMeasures},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMesErrorManagement" parameterType="MesErrorManagement">
+        update mes_error_management
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="errorItem != null and errorItem != ''">error_item = #{errorItem},</if>
+            <if test="errorType != null">error_type = #{errorType},</if>
+            <if test="result != null and result != ''">result = #{result},</if>
+            <if test="preventiveMeasures != null and preventiveMeasures != ''">preventive_measures = #{preventiveMeasures},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMesErrorManagementById" parameterType="Long">
+        delete from mes_error_management where id = #{id}
+    </delete>
+
+    <delete id="deleteMesErrorManagementByIds" parameterType="String">
+        delete from mes_error_management where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

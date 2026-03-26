@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.scm.mapper.ScmSaleDeliveryMapper">
+    
+    <resultMap type="ScmSaleDelivery" id="ScmSaleDeliveryResult">
+        <result property="deliveryNo"    column="delivery_no"   />
+        <result property="contractId"    column="contract_id"    />
+        <result property="contractNo"    column="contract_number"    />
+        <result property="customId"    column="custom_id"    />
+        <result property="customName"    column="custom_name"    />
+        <result property="shipping"    column="shipping"    />
+        <result property="deliveryDate"    column="delivery_date"    />
+        <result property="address"    column="address"    />
+        <result property="linkman"    column="linkman"    />
+        <result property="contactWay"    column="contact_way"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap id="ScmSaleDeliveryScmSaleDeliveryItemResult" type="ScmSaleDelivery" extends="ScmSaleDeliveryResult">
+        <collection property="scmSaleDeliveryItemList" notNullColumn="item_id" javaType="java.util.List" resultMap="ScmSaleDeliveryItemResult" />
+    </resultMap>
+
+    <resultMap type="ScmSaleDeliveryItem" id="ScmSaleDeliveryItemResult">
+        <result property="id"    column="item_id"    />
+        <result property="deliveryId"    column="delivery_id"/>
+        <result property="materialId"    column="material_id"/>
+        <result property="amount"    column="amount"    />
+        <result property="materialName" column="material_name"/>
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"    />
+        <result property="deliveryNum"    column="delivery_num"    />
+        <result property="materialUnit"    column="material_unit"    />
+        <result property="materialPrice"    column="material_price"    />
+        <result property="orderQuantity"    column="order_quantity"    />
+        <result property="returnNum" column="return_num"/>
+        <result property="note"    column="note"    />
+    </resultMap>
+
+    <sql id="selectScmSaleDeliveryVo">
+        SELECT
+        t1.*,
+        t6.custom_name,
+        t7.contract_number,
+        t7.address,
+        t7.shipping
+        FROM
+        `scm_sale_Delivery` t1
+    </sql>
+
+    <select id="selectScmSaleDeliveryList" parameterType="ScmSaleDelivery" resultMap="ScmSaleDeliveryResult">
+        <include refid="selectScmSaleDeliveryVo"/>
+        LEFT JOIN scm_sale_custom t6 on t1.custom_id = t6.id
+        LEFT JOIN scm_sale_contract t7 on t1.contract_id = t7.id
+        <where>
+            <if test="deliveryNo != null"> and t1.delivery_no like concat('%', #{deliveryNo}, '%')</if>
+            <if test="contractNo != null"> and  t7.contract_number like concat('%', #{contractNo}, '%')</if>
+            <if test="customId != null"> and  t1.custom_id  = #{customId}</if>
+            <if test="deliveryDate != null"> and t1.delivery_date = #{deliveryDate}</if>
+            <if test="status != null"> and t1.status = #{status}</if>
+            <if test="createTime != null"> and t1.create_time = #{createTime}</if>
+        </where>
+        order by t1.id desc
+    </select>
+    
+    <select id="selectScmSaleDeliveryById" parameterType="Long" resultMap="ScmSaleDeliveryScmSaleDeliveryItemResult">
+        SELECT t1.*,
+               t4.id as item_id,
+               t4.delivery_id,
+               t4.material_id,
+               t4.amount,
+               t4.order_quantity,
+               t4.delivery_num,
+               t4.return_num,
+               t4.note,
+               t6.custom_name,
+               t7.contract_number,
+               t7.address,
+               t7.shipping,
+               t5.* FROM `scm_sale_Delivery` t1
+               LEFT JOIN scm_sale_delivery_item t4 ON t1.id = t4.delivery_id
+               LEFT JOIN wms_material t5 ON t5.id = t4.material_id
+               LEFT JOIN scm_sale_custom t6 on t1.custom_id = t6.id
+               LEFT JOIN scm_sale_contract t7 on t1.contract_id = t7.id
+        where t1.id = #{id}
+    </select>
+        
+    <insert id="insertScmSaleDelivery" parameterType="ScmSaleDelivery" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_sale_delivery
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deliveryNo != null">delivery_no,</if>
+            <if test="contractId != null">contract_id,</if>
+            <if test="customId != null">custom_id,</if>
+            <if test="shipping != null">shipping,</if>
+            <if test="deliveryDate != null">delivery_date,</if>
+            <if test="address != null">address,</if>
+            <if test="linkman != null">linkman,</if>
+            <if test="contactWay != null">contact_way,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deliveryNo != null">#{deliveryNo},</if>
+            <if test="contractId != null">#{contractId},</if>
+            <if test="customId != null">#{customId},</if>
+            <if test="shipping != null">#{shipping},</if>
+            <if test="deliveryDate != null">#{deliveryDate},</if>
+            <if test="address != null">#{address},</if>
+            <if test="linkman != null">#{linkman},</if>
+            <if test="contactWay != null">#{contactWay},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScmSaleDelivery" parameterType="ScmSaleDelivery">
+        update scm_sale_delivery
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deliveryNo != null">delivery_no = #{deliveryNo},</if>
+            <if test="contractId != null">contract_id = #{contractId},</if>
+            <if test="customId != null">custom_id = #{customId},</if>
+            <if test="shipping != null">shipping = #{shipping},</if>
+            <if test="deliveryDate != null">delivery_date = #{deliveryDate},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="linkman != null">linkman = #{linkman},</if>
+            <if test="contactWay != null">contact_way = #{contactWay},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScmSaleDeliveryById" parameterType="Long">
+        delete from scm_sale_delivery where id = #{id}
+    </delete>
+
+    <delete id="deleteScmSaleDeliveryByIds" parameterType="String">
+        delete from scm_sale_delivery where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteScmSaleDeliveryItemByDeliveryIds" parameterType="String">
+        delete from scm_sale_delivery_item where delivery_id in 
+        <foreach item="deliveryId" collection="array" open="(" separator="," close=")">
+            #{deliveryId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteScmSaleDeliveryItemByDeliveryId" parameterType="Long">
+        delete from scm_sale_delivery_item where delivery_id = #{deliveryId}
+    </delete>
+
+    <insert id="batchScmSaleDeliveryItem">
+        insert into scm_sale_delivery_item( id, delivery_id, material_id, amount, order_quantity, delivery_num, return_num, note) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.deliveryId}, #{item.materialId}, #{item.amount}, #{item.orderQuantity}, #{item.deliveryNum}, #{item.returnNum}, #{item.note})
+        </foreach>
+    </insert>
+</mapper>

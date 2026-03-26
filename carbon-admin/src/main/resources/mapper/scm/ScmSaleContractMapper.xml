@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhonghui.scm.mapper.ScmSaleContractMapper">
+
+    <resultMap type="ScmSaleContract" id="ScmSaleContractResult">
+        <result property="id"    column="id"    />
+        <result property="contractNumber"    column="contract_number"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="customId"    column="custom_id"    />
+        <result property="shipping"    column="shipping"    />
+        <result property="address"    column="address"    />
+        <result property="signingDate"    column="signing_date"    />
+        <result property="applyId"    column="apply_id"    />
+        <result property="applyDate"    column="apply_date"    />
+        <result property="applyStatus"    column="apply_status"    />
+        <result property="auditorId"    column="auditor_id"    />
+        <result property="auditTime"    column="audit_time"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="totalAmount"    column="total_amount"    />
+        <result property="auditorComments"    column="auditor_comments"    />
+        <result property="remark"    column="remark"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="deliveryDate"    column="delivery_date"    />
+        <result property="customName"    column="custom_name"    />
+        <result property="linkman"    column="linkman"    />
+        <result property="applyName"    column="apply_name"    />
+        <result property="auditorName"    column="auditor_name"    />
+        <result property="linkmanPhoneNumber"    column="linkman_phone_number"    />
+        <result property="salesManId"    column="sales_man_id"    />
+    </resultMap>
+
+    <resultMap id="ScmSaleContractScmSaleContractItemResult" type="ScmSaleContract" extends="ScmSaleContractResult">
+        <collection property="scmSaleContractItemList" notNullColumn="sub_id" javaType="java.util.List" resultMap="ScmSaleContractItemResult">
+        </collection>
+    </resultMap>
+
+    <resultMap type="ScmSaleContractItem" id="ScmSaleContractItemResult">
+        <result property="id"    column="sub_id"    />
+        <result property="contractId"    column="sub_contract_id"    />
+        <result property="materialId"    column="sub_material_id"    />
+        <result property="orderQuantity"    column="sub_order_quantity"    />
+        <result property="amount"    column="sub_amount"    />
+        <result property="remark"    column="sub_remark"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="linkman"    column="linkman"    />
+        <result property="linkmanPhoneNumber"    column="linkman_phone_number"    />
+        <result property="SubDeliveryDate"    column="sub_delivery_date"    />
+        <result property="subCustomName"    column="sub_custom_name"    />
+        <result property="subApplyName"    column="sub_apply_name"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialModel"    column="material_model"    />
+        <result property="materialSpecifications"    column="material_specifications"    />
+        <result property="materialUnit"    column="material_unit"    />
+        <result property="materialPrice"    column="material_price"    />
+    </resultMap>
+
+    <sql id="selectScmSaleContractVo">
+        select a.id, a.contract_number, a.order_id, a.custom_id, a.shipping, a.address, a.signing_date,
+               a.apply_id, a.apply_date, a.apply_status, a.auditor_id, a.audit_time, a.audit_status,
+               a.total_amount, a.auditor_comments, a.remark,
+               c.order_no,c.delivery_date,d.custom_name,
+               d.linkman,d.linkman_phone_number,e.user_name as apply_name,f.user_name as auditor_name
+        from scm_sale_contract a
+    </sql>
+
+    <select id="selectScmSaleContractList" parameterType="ScmSaleContract" resultMap="ScmSaleContractResult">
+        <include refid="selectScmSaleContractVo"/>
+        LEFT JOIN scm_sale_order c on a.order_id = c.id
+        LEFT JOIN scm_sale_custom d on a.custom_id = d.id
+        LEFT JOIN sys_user e on a.apply_id = e.user_id
+        LEFT JOIN sys_user f on a.auditor_id = f.user_id
+        <where>  
+            <if test="contractNumber != null  and contractNumber != ''"> and contract_number = #{contractNumber}</if>
+            <if test="orderId != null "> and order_id like concat('%', #{orderId}, '%')</if>
+            <if test="orderNo != null "> and c.order_no  = #{orderNo}</if>
+            <if test="customId != null "> and a.custom_id = #{customId}</if>
+            <if test="salesManId != null "> and sales_man_id = #{salesManId}</if>
+            <if test="shipping != null "> and shipping like concat('%', #{shipping}, '%')</if>
+            <if test="address != null  and address != ''"> and address like concat('%', #{address}, '%')</if>
+            <if test="params.beginSigningDate != null and params.beginSigningDate != ''and params.endSigningDate != null and params.endSigningDate != ''"> and signing_date between #{params.beginSigningDate} and #{params.endSigningDate}</if>
+            <if test="params.beginSubDeliveryDate != null and params.beginSubDeliveryDate != '' and params.endSubDeliveryDate != null and params.endSubDeliveryDate != ''"> and delivery_date between #{params.beginDeliveryDate} and #{params.endDeliveryDate}</if>
+            <if test="applyId != null "> and a.apply_id = #{applyId}</if>
+            <if test="params.beginApplyDate != null and params.beginApplyDate != '' and params.endApplyDate != null and params.endApplyDate != ''"> and apply_date between #{params.beginApplyDate} and #{params.endApplyDate}</if>
+            <if test="applyStatus != null  and applyStatus != ''"> and a.apply_status = #{applyStatus}</if>
+            <if test="auditorId != null "> and a.auditor_id = #{auditorId}</if>
+            <if test="params.beginAuditTime != null and params.beginAuditTime != '' and params.endAuditTime != null and params.endAuditTime != ''"> and audit_time between #{params.beginAuditTime} and #{params.endAuditTime}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and a.audit_status = #{auditStatus}</if>
+            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
+            <if test="auditorComments != null  and auditorComments != ''"> and auditor_comments = #{auditorComments}</if>
+        </where>
+    </select>
+    
+    <select id="selectScmSaleContractById" parameterType="Long" resultMap="ScmSaleContractScmSaleContractItemResult">
+        select a.id,
+               a.contract_number,
+               a.order_id,
+               a.custom_id,
+               a.shipping,
+               a.address,
+               a.signing_date,
+               a.apply_id,
+               a.apply_date,
+               a.apply_status,
+               a.auditor_id,
+               a.audit_time,
+               a.audit_status,
+               a.total_amount,
+               a.auditor_comments,
+               a.remark,
+               b.id as sub_id,
+               b.contract_id as sub_contract_id,
+               b.material_id as sub_material_id,
+               b.order_quantity as sub_order_quantity,
+               b.amount as sub_amount,
+               b.remark as sub_remark,
+               g.order_no,
+               g.delivery_date as sub_delivery_date,
+               h.custom_name as sub_custom_name,
+               h.linkman,
+               h.linkman_phone_number,
+               l.material_name,
+               l.material_model,
+               l.material_specifications,
+               l.material_unit,
+               l.material_price
+        from scm_sale_contract a
+                 left join scm_sale_contract_item b on a.id = b.contract_id
+                 LEFT JOIN scm_sale_order g on a.order_id = g.id
+                 LEFT JOIN scm_sale_custom h on a.custom_id = h.id
+                 LEFT JOIN wms_material l on l.id = b.material_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertScmSaleContract" parameterType="ScmSaleContract" useGeneratedKeys="true" keyProperty="id">
+        insert into scm_sale_contract
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractNumber != null">contract_number,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="customId != null">custom_id,</if>
+            <if test="shipping != null">shipping,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="signingDate != null">signing_date,</if>
+            <if test="applyId != null">apply_id,</if>
+            <if test="applyDate != null">apply_date,</if>
+            <if test="applyStatus != null">apply_status,</if>
+            <if test="auditorId != null">auditor_id,</if>
+            <if test="auditTime != null">audit_time,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="auditorComments != null">auditor_comments,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractNumber != null">#{contractNumber},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="customId != null">#{customId},</if>
+            <if test="shipping != null">#{shipping},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="signingDate != null">#{signingDate},</if>
+            <if test="applyId != null">#{applyId},</if>
+            <if test="applyDate != null">#{applyDate},</if>
+            <if test="applyStatus != null">#{applyStatus},</if>
+            <if test="auditorId != null">#{auditorId},</if>
+            <if test="auditTime != null">#{auditTime},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="auditorComments != null">#{auditorComments},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScmSaleContract" parameterType="ScmSaleContract">
+        update scm_sale_contract
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contractNumber != null">contract_number = #{contractNumber},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="customId != null">custom_id = #{customId},</if>
+            <if test="shipping != null">shipping = #{shipping},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="signingDate != null">signing_date = #{signingDate},</if>
+            <if test="applyId != null">apply_id = #{applyId},</if>
+            <if test="applyDate != null">apply_date = #{applyDate},</if>
+            <if test="applyStatus != null">apply_status = #{applyStatus},</if>
+            <if test="auditorId != null">auditor_id = #{auditorId},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="auditorComments != null">auditor_comments = #{auditorComments},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScmSaleContractById" parameterType="Long">
+        delete from scm_sale_contract where id = #{id}
+    </delete>
+
+    <delete id="deleteScmSaleContractByIds" parameterType="String">
+        delete from scm_sale_contract where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteScmSaleContractItemByIds" parameterType="String">
+        delete from scm_sale_contract_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteScmSaleContractItemById" parameterType="Long">
+        delete from scm_sale_contract_item where id = #{id}
+    </delete>
+
+    <insert id="batchScmSaleContractItem">
+        insert into scm_sale_contract_item( id, contract_id, material_id, order_quantity, amount, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.contractId}, #{item.materialId}, #{item.orderQuantity}, #{item.amount}, #{item.remark})
+        </foreach>
+    </insert>
+</mapper>
